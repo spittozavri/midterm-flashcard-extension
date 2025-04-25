@@ -1,0 +1,17 @@
+# Node
+node_modules/
+dist/
+.cache/
+
+# Env
+.env
+
+# IDE
+.vscode/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Cursor AI
+.cursor/
