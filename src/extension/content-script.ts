@@ -1,64 +1,94 @@
 console.log('[Content Script] Loaded.');
 
-// Remove any existing flashcard button when clicking outside
-document.addEventListener('mousedown', (event: MouseEvent) => {
+let selectedText = '';
+
+function createFlashcardButton(textToSave: string, rect: DOMRect) {
+  console.log('[Content Script] Creating flashcard button with text:', textToSave);
+  
+  const flashcardButton = document.createElement('button');
+  flashcardButton.textContent = 'Save Flashcard';
+  flashcardButton.className = 'flashcard-button';
+
+  flashcardButton.style.position = 'fixed';
+  flashcardButton.style.top = `${rect.bottom + window.scrollY + 8}px`; // Fixed: Added window.scrollY
+  flashcardButton.style.left = `${rect.left + window.scrollX}px`; // Fixed: Changed to start at left and added scrollX
+  flashcardButton.style.zIndex = '10000';
+  flashcardButton.style.padding = '8px 12px';
+  flashcardButton.style.fontSize = '14px';
+  flashcardButton.style.backgroundColor = '#007bff';
+  flashcardButton.style.color = 'white';
+  flashcardButton.style.border = 'none';
+  flashcardButton.style.borderRadius = '4px';
+  flashcardButton.style.cursor = 'pointer';
+  flashcardButton.style.boxShadow = '0px 2px 6px rgba(0, 0, 0, 0.2)';
+  flashcardButton.style.opacity = '0';
+  flashcardButton.style.transition = 'opacity 0.3s ease';
+
+  document.body.appendChild(flashcardButton);
+  console.log('[Content Script] Button added to DOM');
+
+  flashcardButton.getBoundingClientRect();
+  
+  requestAnimationFrame(() => {
+    flashcardButton.style.opacity = '1';
+  });
+
+  flashcardButton.addEventListener('click', function(e) {
+    e.stopPropagation(); // Prevent event bubbling
+    console.log('[Content Script] Button clicked!');
+    console.log('[Content Script] Selected text:', textToSave);
+
+    chrome.runtime.sendMessage({
+      type: 'createFlashcard',
+      text: textToSave
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        console.error('[Content Script] Error sending message:', chrome.runtime.lastError.message);
+      } else {
+        console.log('[Content Script] Message acknowledged:', response);
+      }
+    });
+
+    flashcardButton.remove();
+    window.getSelection()?.removeAllRanges();
+  });
+  
+  return flashcardButton; 
+}
+
+document.addEventListener('mouseup', (e) => {
+  if ((e.target as Element).closest('.flashcard-button')) {
+    return;
+  }
+  
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed) {
+    return;
+  }
+
+  selectedText = selection.toString().trim();
+  console.log('[Content Script] Selected text:', selectedText);
+  
+  if (!selectedText) {
+    return;
+  }
+
   const existingButton = document.querySelector('.flashcard-button');
-  if (existingButton && !existingButton.contains(event.target as Node)) {
+  if (existingButton) {
+    console.log('[Content Script] Removing existing button');
     existingButton.remove();
   }
+
+  const range = selection.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  createFlashcardButton(selectedText, rect);
 });
 
-document.addEventListener('mouseup', () => {
-    // Remove any existing button first
-    const existingButton = document.querySelector('.flashcard-button');
-    if (existingButton) {
-      existingButton.remove();
-    }
-
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) {
-      return;
-    }
-  
-    const selectedText = selection.toString().trim();
-    if (!selectedText) {
-      return;
-    }
-  
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-  
-    const button = document.createElement('button');
-    button.textContent = 'Save Flashcard';
-    button.className = 'flashcard-button';
-  
-    // Position at bottom-right of selection
-    button.style.position = 'fixed';  // Changed to fixed positioning
-    button.style.top = `${rect.bottom + 8}px`;    // 8px below the bottom of selection
-    button.style.left = `${rect.right - 100}px`;    // Approximate width of button
-    button.style.zIndex = '10000';
-  
-    // Style
-    button.style.padding = '8px 12px';
-    button.style.fontSize = '14px';
-    button.style.backgroundColor = '#007bff';
-    button.style.color = 'white';
-    button.style.border = 'none';
-    button.style.borderRadius = '4px';
-    button.style.cursor = 'pointer';
-    button.style.boxShadow = '0px 2px 6px rgba(0, 0, 0, 0.2)';
-  
-    document.body.appendChild(button);
-  
-    button.addEventListener('click', () => {
-      chrome.runtime.sendMessage({
-        type: 'createFlashcard',
-        text: selectedText,
-        sourceUrl: window.location.href
-      });
-  
-      button.remove();
-      selection.removeAllRanges();
-    });
+// Clean up if clicking elsewhere
+document.addEventListener('mousedown', (event) => {
+  const button = document.querySelector('.flashcard-button');
+  if (button && !(event.target as Element).closest('.flashcard-button')) {
+    console.log('[Content Script] Clicked outside, removing button');
+    button.remove(); // Removed the setTimeout
+  }
 });
-  
