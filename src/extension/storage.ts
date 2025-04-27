@@ -3,30 +3,38 @@ import type { Flashcard } from './flashcard';
 const FLASHCARDS_KEY = 'flashcards';
 const CURRENT_DAY_KEY = 'currentDay';
 
-// Load flashcards from localStorage
-export function loadFlashcards(): Flashcard[] {
-  const data = localStorage.getItem(FLASHCARDS_KEY);
-  if (!data) return [];
+export async function loadFlashcards(): Promise<Flashcard[]> {
   try {
-    return JSON.parse(data);
-  } catch (e) {
-    console.error('Failed to parse flashcards:', e);
+    const result = await chrome.storage.local.get(FLASHCARDS_KEY);
+    return result[FLASHCARDS_KEY] || [];
+  } catch (error) {
+    console.error('Failed to load flashcards:', error);
     return [];
   }
 }
 
-// Save flashcards to localStorage
-export function saveFlashcards(cards: Flashcard[]): void {
-  localStorage.setItem(FLASHCARDS_KEY, JSON.stringify(cards));
+export async function saveFlashcards(cards: Flashcard[]): Promise<void> {
+  try {
+    await chrome.storage.local.set({ [FLASHCARDS_KEY]: cards });
+  } catch (error) {
+    console.error('Failed to save flashcards:', error);
+  }
 }
 
-// Load current day (default = 1)
-export function loadCurrentDay(): number {
-  const stored = localStorage.getItem(CURRENT_DAY_KEY);
-  return stored ? parseInt(stored) : 1;
+export async function loadCurrentDay(): Promise<number> {
+  try {
+    const result = await chrome.storage.local.get(CURRENT_DAY_KEY);
+    return result[CURRENT_DAY_KEY] || 1;
+  } catch (error) {
+    console.error('Failed to load current day:', error);
+    return 1;
+  }
 }
 
-// Save current day
-export function saveCurrentDay(day: number): void {
-  localStorage.setItem(CURRENT_DAY_KEY, day.toString());
+export async function saveCurrentDay(day: number): Promise<void> {
+  try {
+    await chrome.storage.local.set({ [CURRENT_DAY_KEY]: day });
+  } catch (error) {
+    console.error('Failed to save current day:', error);
+  }
 }

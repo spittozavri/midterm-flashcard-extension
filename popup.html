@@ -1,10 +1,26 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Flashcard Popup</title>
-  </head>
-  <body>
-    <div id="app">Loading popup...</div>
-    <script type="module" src="/src/extension/popup.ts"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>Flashcard Popup</title>
+</head>
+<body>
+  <h1>Flashcards</h1>
+  <form id="flashcardForm">
+    <label for="front">Front:</label><br />
+    <input type="text" id="front" required /><br /><br />
+
+    <label for="back">Back:</label><br />
+    <textarea id="back" required></textarea><br /><br />
+
+    <label for="hint">Hint (optional):</label><br />
+    <input type="text" id="hint" /><br /><br />
+
+    <label for="tags">Tags (comma separated):</label><br />
+    <input type="text" id="tags" /><br /><br />
+
+    <button type="submit">Save Card</button>
+  </form>
+
+  <script type="module" src="/src/extension/popup.ts"></script>
+</body>
 </html>
