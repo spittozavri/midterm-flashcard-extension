@@ -1,10 +1,78 @@
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Practice Mode</title>
-  </head>
-  <body>
-    <div id="practice-root">Loading practice...</div>
-    <script type="module" src="/src/extension/practice.ts"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flashcard Learner</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #121212;
+      color: #222;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .card-container {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      width: 320px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #2a2a2a;
+      margin-bottom: 16px;
+    }
+
+    .day-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      background-color: #2563eb;
+      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 9999px;
+      margin-bottom: 12px;
+    }
+
+    .status-text {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 16px;
+    }
+
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <div class="card-container">
+    <h1>Flashcard Learner</h1>
+    <div class="day-badge" id="day-counter">Day 0</div>
+    <div class="status-text" id="status-message">No more cards to practice today!</div>
+    <button id="next-day-btn">Go to Next Day</button>
+  </div>
+
+  <script type="module" src="/src/extension/practice.ts"></script>
+</body>
 </html>
