@@ -1,15 +1,11 @@
-// flashcard.ts
-
-export type Difficulty = 'easy' | 'hard' | 'wrong';
-
 export interface Flashcard {
   front: string;
   back: string;
-  tags?: string[];
   hint?: string;
+  tags: string[];
   sourceUrl: string;
   createdAt: string;
-  difficulty: Difficulty;
+  difficulty: 'easy' | 'hard' | 'wrong';
   bucket: number;
-  lastPracticed: string;
+  lastPracticedDay: number;
 }
