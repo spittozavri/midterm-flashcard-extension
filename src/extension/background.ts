@@ -18,8 +18,6 @@ type ExtensionMessage = SaveFlashcardMessage | CreateFlashcardMessage;
 chrome.runtime.onMessage.addListener(
   (message: ExtensionMessage, _sender, sendResponse) => {
     if (message.type === 'saveFlashcard') {
-      console.log('[Background] Saving flashcard:', message.flashcard);
-
       loadFlashcards()
         .then(existing => {
           existing.push(message.flashcard);
@@ -31,12 +29,10 @@ chrome.runtime.onMessage.addListener(
           sendResponse({ success: false, error: String(err) });
         });
 
-      return true; // async response
+      return true;
     }
 
     if (message.type === 'createFlashcard') {
-      console.log('[Background] Creating flashcard from selected text:', message.text);
-
       chrome.storage.local.set({ selectedText: message.text }).then(() => {
         chrome.windows.create({
           url: chrome.runtime.getURL('popup.html'),
@@ -50,9 +46,23 @@ chrome.runtime.onMessage.addListener(
         sendResponse({ success: false, error: String(err) });
       });
 
-      return true; // async response
+      return true;
     }
 
-    return false; // unknown message
+    return false;
   }
 );
+
+// 👇 Auto-open practice.html on install
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.tabs.create({
+    url: chrome.runtime.getURL('practice.html'),
+  });
+});
+
+// 👇 Clicking the extension icon also opens practice.html
+chrome.action.onClicked.addListener(() => {
+  chrome.tabs.create({
+    url: chrome.runtime.getURL('practice.html'),
+  });
+});

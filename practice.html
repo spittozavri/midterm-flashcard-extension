@@ -2,77 +2,229 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Flashcard Learner</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600&display=swap" rel="stylesheet">
+  <title>Practice Flashcards</title>
   <style>
+    /* General Body Styles */
     body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #282c34; /* Dark background */
       margin: 0;
-      padding: 0;
-      background-color: #121212;
-      color: #222;
-      font-family: 'Inter', sans-serif;
+      padding: 20px; /* Add padding around the card */
       display: flex;
-      align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      align-items: center;
+      min-height: 95vh; /* Use viewport height to help center */
+      box-sizing: border-box;
     }
 
-    .card-container {
-      background: white;
-      padding: 32px;
-      border-radius: 16px;
-      width: 320px;
+    /* Flashcard Container */
+    #flashcard-container {
+      background-color: white;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       text-align: center;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      width: 100%; /* Allow shrinking */
+      max-width: 350px; /* Max width like the target */
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
     }
 
+    /* Title */
     h1 {
+      color: #345deb; /* Blue color */
       font-size: 24px;
-      color: #2a2a2a;
-      margin-bottom: 16px;
-    }
-
-    .day-badge {
-      display: inline-block;
-      padding: 6px 16px;
-      background-color: #2563eb;
-      color: white;
-      font-size: 14px;
       font-weight: bold;
-      border-radius: 9999px;
-      margin-bottom: 12px;
+      margin-top: 0;
+      margin-bottom: 10px;
     }
 
-    .status-text {
-      font-size: 14px;
-      color: #444;
-      margin-bottom: 16px;
+    /* Container for Day and Progress */
+    #card-info {
+        margin-bottom: 15px; /* Space below day/progress */
     }
 
-    button {
-      background-color: #2563eb;
+    /* Day Indicator */
+    #day-indicator {
+      background-color: #345deb; /* Blue background */
       color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 14px;
-      border-radius: 6px;
-      cursor: pointer;
+      padding: 3px 10px;
+      border-radius: 12px; /* Pill shape */
+      font-size: 11px;
+      font-weight: 500;
+      display: inline-block;
+      margin-bottom: 5px; /* Space between day and progress */
+    }
+
+    /* Card Counter / Progress Label */
+    #progress-label {
+      color: #888; /* Grey color */
+      font-size: 12px;
+      display: block; /* Ensure it takes its own line */
+    }
+
+    /* Area for Term/Answer/Hint Content */
+    #card-content-area {
+      font-size: 18px;
+      color: #333;
+      min-height: 80px; /* Ensure space */
+      display: flex; /* Use flex to center content vertically */
+      justify-content: center;
+      align-items: center;
+      padding: 15px 10px; /* Vertical and horizontal padding */
+      margin-bottom: 20px; /* Space before buttons */
+      border-top: 1px solid #f0f0f0; /* Faint separator line */
+      border-bottom: 1px solid #f0f0f0; /* Faint separator line */
+      text-align: center;
+    }
+
+    #card-front, #card-back, #card-hint {
+        width: 100%; /* Ensure they fill the content area */
+    }
+
+    /* Hide elements that shouldn't be visible initially */
+    #card-back,
+    #card-hint,
+    #feedback-actions, /* Hide the difficulty/next group */
+    #end-message {
+        display: none;
+    }
+
+    /* Button Container Styling */
+    .button-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px; /* Spacing between buttons */
+        margin-top: 10px; /* Space above button groups */
+        width: 100%; /* Make container take full width */
+    }
+
+    /* General Button Styles */
+    button {
+        border: none;
+        border-radius: 5px;
+        padding: 10px 15px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, opacity 0.2s ease;
+        width: 85%; /* Make buttons relatively wide */
+        max-width: 240px; /* But not excessively wide */
+        box-sizing: border-box;
+        font-weight: 500;
     }
 
     button:hover {
-      background-color: #1e40af;
+        opacity: 0.9;
     }
+
+    /* Specific Button Styles */
+    #hint-btn {
+        background-color: #333; /* Dark grey/black */
+        color: white;
+        padding: 8px 12px; /* Slightly smaller padding */
+        font-size: 13px;
+        width: auto; /* Let content size dictate width */
+        min-width: 100px;
+    }
+
+    #show-answer-btn { /* Was show-btn */
+        background-color: #345deb; /* Blue color */
+        color: white;
+    }
+
+    /* Styling for Feedback Actions (after answer is shown) */
+    #feedback-actions {
+        /* This container itself is hidden/shown by JS */
+    }
+
+     #feedback-actions select {
+        padding: 8px 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-bottom: 8px; /* Space between select and button */
+        width: 85%;
+        max-width: 240px; /* Match button width */
+        box-sizing: border-box;
+        text-align: center; /* Center the text in select */
+     }
+
+     #next-btn {
+        background-color: #007bff; /* Default blue, or match show-answer blue */
+        color: white;
+     }
+
+    /* End Message Specific Styles */
+    #end-message {
+      text-align: center;
+      margin-top: 30px;
+      color: #ccc; /* Lighter text color on dark background */
+      /* display: none; is set above */
+    }
+    #end-message h2 {
+        margin-bottom: 15px;
+    }
+    #next-day-btn {
+        background-color: #28a745; /* Green for next day */
+        color: white;
+    }
+
+    /* Remove default labels */
+    .label {
+      display: none;
+    }
+
   </style>
 </head>
 <body>
-  <div class="card-container">
+
+  <!-- Main Flashcard Structure -->
+  <div id="flashcard-container">
+
+    <!-- Title -->
     <h1>Flashcard Learner</h1>
-    <div class="day-badge" id="day-counter">Day 0</div>
-    <div class="status-text" id="status-message">No more cards to practice today!</div>
+
+    <!-- Day and Progress Info -->
+    <div id="card-info">
+      <span id="day-indicator">Day X</span> <!-- JS will set the correct day -->
+      <div id="progress-label">Card Y of Z</div> <!-- JS will set progress -->
+    </div>
+
+    <!-- Content Area (Term/Answer/Hint) -->
+    <div id="card-content-area">
+      <div id="card-front">Loading card...</div> <!-- Term shown here -->
+      <div id="card-back">Answer goes here</div> <!-- Answer shown here (initially hidden) -->
+      <div id="card-hint">Hint goes here</div> <!-- Hint shown here (initially hidden) -->
+      <!-- Tags removed for cleaner look based on target image -->
+    </div>
+
+    <!-- Initial Action Buttons -->
+    <div id="initial-actions" class="button-container">
+      <button id="hint-btn">Get Hint</button>
+      <button id="show-answer-btn">Show Answer</button> <!-- Renamed from show-btn -->
+    </div>
+
+    <!-- Feedback Action Buttons (shown after answer) -->
+    <div id="feedback-actions" class="button-container">
+      <select id="difficulty">
+        <option value="easy">Easy 👍</option>
+        <option value="hard">Hard ✋</option>
+        <option value="wrong">Wrong 👎</option>
+      </select>
+      <button id="next-btn">Submit & Next</button>
+      <!-- Skip button removed to match target image's initial state, JS could add it back if needed -->
+    </div>
+
+  </div>
+
+  <!-- End of Session Message -->
+  <div id="end-message">
+    <h2>No more cards to practice today!</h2>
     <button id="next-day-btn">Go to Next Day</button>
   </div>
 
+  <!-- Link to your TypeScript logic -->
   <script type="module" src="/src/extension/practice.ts"></script>
 </body>
 </html>

@@ -30,63 +30,83 @@ function updateBucket(card: Flashcard, result: 'easy' | 'hard' | 'wrong', curren
 
 function displayCard(index: number) {
   const card = sessionCards[index];
-  const frontEl = document.getElementById('card-front')!;
-  const backEl = document.getElementById('card-back')!;
-  const hintEl = document.getElementById('card-hint')!;
-  const tagsEl = document.getElementById('card-tags')!;
 
-  frontEl.textContent = card.front;
-  backEl.textContent = card.back;
-  hintEl.textContent = card.hint || 'No hint';
-  tagsEl.textContent = card.tags?.join(', ') || 'No tags';
-  backEl.style.display = 'none';
+  const front = document.getElementById('card-front')!;
+  const back = document.getElementById('card-back')!;
+  const hint = document.getElementById('card-hint')!;
+  const progressLabel = document.getElementById('progress-label')!;
+
+  front.textContent = card.front;
+  back.textContent = card.back;
+  hint.textContent = card.hint || 'No hint';
+
+  front.style.display = 'block';
+  back.style.display = 'none';
+  hint.style.display = 'none';
+
+  // Update progress tracker
+  progressLabel.textContent = `Card ${index + 1} of ${sessionCards.length}`;
 }
 
 function setupUI() {
-  const showBtn = document.getElementById('show-btn')!;
+  const showBtn = document.getElementById('show-answer-btn')!;
+  const hintBtn = document.getElementById('hint-btn')!;
   const nextBtn = document.getElementById('next-btn')!;
-  const dayLabel = document.getElementById('day-label')!;
-  const endMsg = document.getElementById('end-message')!;
-  const cardContainer = document.getElementById('card-container')!;
-  const difficultySelect = document.getElementById('difficulty') as HTMLSelectElement;
+  const difficulty = document.getElementById('difficulty') as HTMLSelectElement;
+  const initialActions = document.getElementById('initial-actions')!;
+  const feedbackActions = document.getElementById('feedback-actions')!;
+  const dayIndicator = document.getElementById('day-indicator')!;
+  const endMessage = document.getElementById('end-message')!;
+  const cardContainer = document.getElementById('flashcard-container')!;
+  const nextDayBtn = document.getElementById('next-day-btn')!;
+
+  dayIndicator.textContent = `Day ${currentDay}`;
 
   showBtn.addEventListener('click', () => {
+    document.getElementById('card-front')!.style.display = 'none';
     document.getElementById('card-back')!.style.display = 'block';
+    document.getElementById('card-hint')!.style.display = 'block';
+    initialActions.style.display = 'none';
+    feedbackActions.style.display = 'flex';
+  });
+
+  hintBtn.addEventListener('click', () => {
+    document.getElementById('card-hint')!.style.display = 'block';
   });
 
   nextBtn.addEventListener('click', async () => {
-    const result = difficultySelect.value as 'easy' | 'hard' | 'wrong';
+    const result = difficulty.value as 'easy' | 'hard' | 'wrong';
     const card = sessionCards[currentIndex];
     const updatedCard = updateBucket(card, result, currentDay);
 
-    // Update the card in storage
     const allCards = await loadFlashcards();
-    const index = allCards.findIndex(c =>
+    console.log('[Practice] Loaded all cards:', allCards);
+    const idx = allCards.findIndex(c =>
       c.front === updatedCard.front &&
       c.back === updatedCard.back &&
       c.createdAt === updatedCard.createdAt
     );
-    if (index !== -1) {
-      allCards[index] = updatedCard;
+    if (idx !== -1) {
+      allCards[idx] = updatedCard;
       await saveFlashcards(allCards);
     }
 
     currentIndex++;
     if (currentIndex < sessionCards.length) {
       displayCard(currentIndex);
+      initialActions.style.display = 'flex';
+      feedbackActions.style.display = 'none';
     } else {
       cardContainer.style.display = 'none';
-      endMsg.style.display = 'block';
+      endMessage.style.display = 'block';
     }
   });
 
-  document.getElementById('next-day-btn')!.addEventListener('click', async () => {
+  nextDayBtn.addEventListener('click', async () => {
     currentDay++;
     await saveCurrentDay(currentDay);
     location.reload();
   });
-
-  dayLabel!.textContent = `Day ${currentDay}`;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -94,12 +114,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const allCards = await loadFlashcards();
   sessionCards = allCards.filter(card => isCardDue(card, currentDay));
 
-  setupUI();
-
   if (sessionCards.length > 0) {
     displayCard(0);
+    setupUI();
   } else {
-    document.getElementById('card-container')!.style.display = 'none';
+    document.getElementById('flashcard-container')!.style.display = 'none';
     document.getElementById('end-message')!.style.display = 'block';
+    document.getElementById('next-day-btn')!.addEventListener('click', async () => {
+      currentDay++;
+      await saveCurrentDay(currentDay);
+      location.reload();
+    });
   }
 });
