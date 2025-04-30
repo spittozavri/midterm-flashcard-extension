@@ -1,24 +1,43 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Flashcard Popup</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 16px;
+      width: 360px;
+    }
+
+    textarea, input {
+      width: 100%;
+      margin-bottom: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Flashcards</h1>
+  <h2>Create a Flashcard</h2>
   <form id="flashcardForm">
-    <label for="front">Front:</label><br />
-    <input type="text" id="front" required /><br /><br />
+    <label for="front">Front:</label>
+    <input type="text" id="front" required />
 
-    <label for="back">Back:</label><br />
-    <textarea id="back" required></textarea><br /><br />
+    <label for="back">Back:</label>
+    <textarea id="back" required></textarea>
 
-    <label for="hint">Hint (optional):</label><br />
-    <input type="text" id="hint" /><br /><br />
+    <label for="hint">Hint (optional):</label>
+    <input type="text" id="hint" />
 
-    <label for="tags">Tags (comma separated):</label><br />
-    <input type="text" id="tags" /><br /><br />
+    <label for="tags">Tags (comma-separated):</label>
+    <input type="text" id="tags" />
 
-    <button type="submit">Save Card</button>
+    <button type="submit">Save Flashcard</button>
   </form>
 
   <script type="module" src="/src/extension/popup.ts"></script>

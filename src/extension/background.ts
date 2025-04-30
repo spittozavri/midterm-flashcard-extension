@@ -1,7 +1,7 @@
-import { saveFlashcards, loadFlashcards } from './storage';
+import { loadFlashcards, saveFlashcards } from './storage';
 import type { Flashcard } from './flashcard';
 
-console.log('[Background] Running...');
+console.log('[Background] Service Worker running.');
 
 type SaveFlashcardMessage = {
   type: 'saveFlashcard';
@@ -20,41 +20,39 @@ chrome.runtime.onMessage.addListener(
     if (message.type === 'saveFlashcard') {
       console.log('[Background] Saving flashcard:', message.flashcard);
 
-      loadFlashcards().then(existingCards => {
-        existingCards.push(message.flashcard);
-        saveFlashcards(existingCards);
+      loadFlashcards()
+        .then(existing => {
+          existing.push(message.flashcard);
+          return saveFlashcards(existing);
+        })
+        .then(() => sendResponse({ success: true }))
+        .catch(err => {
+          console.error('[Background] Error saving flashcard:', err);
+          sendResponse({ success: false, error: String(err) });
+        });
 
-        sendResponse({ success: true });
-      }).catch(error => {
-        console.error('[Background] Failed saving flashcard:', error);
-        sendResponse({ success: false, error: String(error) });
-      });
-
-      return true; 
+      return true; // async response
     }
 
     if (message.type === 'createFlashcard') {
       console.log('[Background] Creating flashcard from selected text:', message.text);
 
-      // Save the selected text into chrome.storage.local first
       chrome.storage.local.set({ selectedText: message.text }).then(() => {
-        // After saving, open the popup window
         chrome.windows.create({
           url: chrome.runtime.getURL('popup.html'),
           type: 'popup',
           width: 400,
           height: 600,
         });
-
         sendResponse({ success: true });
-      }).catch(error => {
-        console.error('[Background] Failed creating flashcard:', error);
-        sendResponse({ success: false, error: String(error) });
+      }).catch(err => {
+        console.error('[Background] Error creating flashcard:', err);
+        sendResponse({ success: false, error: String(err) });
       });
 
-      return true; 
+      return true; // async response
     }
 
-    return false;
+    return false; // unknown message
   }
 );
