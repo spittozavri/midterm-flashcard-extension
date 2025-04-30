@@ -1,4 +1,5 @@
 import type { Flashcard } from './flashcard';
+import { loadCurrentDay } from './storage';
 
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('[Popup] DOM fully loaded.');
@@ -9,7 +10,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  // Prefill back field with selected text from storage
   try {
     const result = await chrome.storage.local.get('selectedText');
     const selectedText = result.selectedText;
@@ -41,6 +41,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
+    const currentDay = await loadCurrentDay();
+
     const flashcard: Flashcard = {
       front,
       back,
@@ -50,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       createdAt: new Date().toISOString(),
       difficulty: 'easy',
       bucket: 0,
-      lastPracticed: new Date().toISOString()
+      lastPracticedDay: currentDay
     };
 
     try {
