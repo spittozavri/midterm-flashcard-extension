@@ -44,7 +44,6 @@ function displayCard(index: number) {
   back.style.display = 'none';
   hint.style.display = 'none';
 
-  // Update progress tracker
   progressLabel.textContent = `Card ${index + 1} of ${sessionCards.length}`;
 }
 
@@ -80,7 +79,6 @@ function setupUI() {
     const updatedCard = updateBucket(card, result, currentDay);
 
     const allCards = await loadFlashcards();
-    console.log('[Practice] Loaded all cards:', allCards);
     const idx = allCards.findIndex(c =>
       c.front === updatedCard.front &&
       c.back === updatedCard.back &&
