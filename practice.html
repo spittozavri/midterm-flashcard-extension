@@ -23,6 +23,7 @@
       width: 700px;
       max-width: 90%;
       box-sizing: border-box;
+      position: relative;
     }
 
     h1 {
@@ -143,11 +144,27 @@
       font-size: 14px;
       color: #555;
     }
+
+    /* Webcam video element */
+    #webcam-preview {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 220px;
+      height: 160px;
+      border-radius: 10px;
+      object-fit: cover;
+      background-color: #000;
+      z-index: 10;
+     border: 2px solid #ccc;
+    }
   </style>
 </head>
 <body>
 
   <div id="flashcard-container">
+    <video id="webcam-preview" autoplay muted playsinline></video>
+
     <h1>Flashcard Learner</h1>
 
     <div id="card-info">
@@ -188,6 +205,11 @@
     <button id="next-day-btn">Go to Next Day</button>
   </div>
 
+  <!-- TensorFlow + Handpose -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.21.0/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose@0.0.7/dist/handpose.min.js"></script>
+
+  <!-- Your practice logic -->
   <script type="module" src="/src/extension/practice.ts"></script>
 </body>
 </html>
